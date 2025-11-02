@@ -371,7 +371,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-gray-200 md:p-4 p-2 justify-center items-center">
         <form onSubmit={handleSubmit} className="space-y-2">
           {/* Image Preview */}
           {imagePreview && (
@@ -392,7 +392,7 @@ export default function ChatPage() {
             </div>
           )}
           
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 justify-center items-center">
             {/* Hidden File Inputs */}
             {isMobile ? (
               <>
@@ -444,7 +444,7 @@ export default function ChatPage() {
                     <button
                       type="button"
                       onClick={handleCameraClick}
-                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors duration-200 text-left"
+                      className="flex items-center space-x-3 w-full p-2 hover:bg-gray-50 transition-colors duration-200 text-left"
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -456,12 +456,12 @@ export default function ChatPage() {
                     <button
                       type="button"
                       onClick={handleGalleryClick}
-                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors duration-200 text-left"
+                      className="flex items-center space-x-3 w-full p-2 hover:bg-gray-50 transition-colors duration-200 text-left"
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span className="text-sm font-medium text-gray-700">Select from Gallery</span>
+                      <span className="text-sm font-medium text-gray-700">From Gallery</span>
                     </button>
                   </div>
                 )}
@@ -472,7 +472,7 @@ export default function ChatPage() {
                 type="button"
                 onClick={handleDesktopFileClick}
                 disabled={isLoading || !isHydrated || selectedImage !== null}
-                className="px-3 py-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="px-2 py-2 col-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 aria-label="Attach file"
                 title="Attach File"
               >
@@ -482,7 +482,7 @@ export default function ChatPage() {
               </button>
             )}
             
-            <div className="flex-1 relative">
+            <div className="flex-1 relative col-8">
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -497,7 +497,7 @@ export default function ChatPage() {
             <button
               type="submit"
               disabled={(!inputValue.trim() && !selectedImage) || isLoading || !isHydrated || !sessionId}
-              className="px-6 py-2 bg-teal-500 text-white rounded-2xl hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className=" col-2 md:px-6 p-2 bg-teal-500 text-white rounded-2xl hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
