@@ -358,10 +358,13 @@ export default function ChatPage() {
         {isLoading && (
           <div className="flex justify-start">
             <div className="message-bubble bot-message">
+              <div className="flex justify-center items-center">
+                <div className="font-bold text-teal-500 px-2">Analysing</div>
               <div className="typing-indicator">
                 <div className="typing-dot"></div>
                 <div className="typing-dot"></div>
                 <div className="typing-dot"></div>
+              </div>
               </div>
             </div>
           </div>
