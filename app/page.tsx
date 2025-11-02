@@ -79,14 +79,29 @@ export default function ChatPage() {
   const [isHydrated, setIsHydrated] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [showAttachMenu, setShowAttachMenu] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
+  const desktopInputRef = useRef<HTMLInputElement>(null)
+  const attachMenuRef = useRef<HTMLDivElement>(null)
 
   // Handle hydration and generate sessionId on client side only
   useEffect(() => {
     setSessionId(uuidv4())
     setIsHydrated(true)
+    
+    // Detect if device is mobile
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768
+      setIsMobile(isMobileDevice)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const scrollToBottom = () => {
@@ -96,6 +111,23 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Handle clicks outside the attachment menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (attachMenuRef.current && !attachMenuRef.current.contains(event.target as Node)) {
+        setShowAttachMenu(false)
+      }
+    }
+
+    if (showAttachMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showAttachMenu])
 
   // Handle image file selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,16 +169,31 @@ export default function ChatPage() {
     if (galleryInputRef.current) {
       galleryInputRef.current.value = ''
     }
+    if (desktopInputRef.current) {
+      desktopInputRef.current.value = ''
+    }
+  }
+
+  // Toggle attachment menu (mobile)
+  const handlePaperclipClick = () => {
+    setShowAttachMenu(!showAttachMenu)
   }
 
   // Trigger camera input click
   const handleCameraClick = () => {
+    setShowAttachMenu(false)
     cameraInputRef.current?.click()
   }
 
   // Trigger gallery input click
   const handleGalleryClick = () => {
+    setShowAttachMenu(false)
     galleryInputRef.current?.click()
+  }
+
+  // Trigger desktop file input click
+  const handleDesktopFileClick = () => {
+    desktopInputRef.current?.click()
   }
 
   const sendMessage = async () => {
@@ -171,6 +218,9 @@ export default function ChatPage() {
     }
     if (galleryInputRef.current) {
       galleryInputRef.current.value = ''
+    }
+    if (desktopInputRef.current) {
+      desktopInputRef.current.value = ''
     }
     setIsLoading(true)
   
@@ -344,50 +394,93 @@ export default function ChatPage() {
           
           <div className="flex space-x-2">
             {/* Hidden File Inputs */}
-            <input
-              type="file"
-              ref={cameraInputRef}
-              onChange={handleImageSelect}
-              accept="image/png,image/jpeg,image/jpg"
-              capture="environment"
-              className="hidden"
-            />
-            <input
-              type="file"
-              ref={galleryInputRef}
-              onChange={handleImageSelect}
-              accept="image/png,image/jpeg,image/jpg"
-              className="hidden"
-            />
+            {isMobile ? (
+              <>
+                <input
+                  type="file"
+                  ref={cameraInputRef}
+                  onChange={handleImageSelect}
+                  accept="image/png,image/jpeg,image/jpg"
+                  capture="environment"
+                  className="hidden"
+                />
+                <input
+                  type="file"
+                  ref={galleryInputRef}
+                  onChange={handleImageSelect}
+                  accept="image/png,image/jpeg,image/jpg"
+                  className="hidden"
+                />
+              </>
+            ) : (
+              <input
+                type="file"
+                ref={desktopInputRef}
+                onChange={handleImageSelect}
+                accept="image/png,image/jpeg,image/jpg"
+                className="hidden"
+              />
+            )}
             
-            {/* Camera Button */}
-            <button
-              type="button"
-              onClick={handleCameraClick}
-              disabled={isLoading || !isHydrated || selectedImage !== null}
-              className="px-3 py-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              aria-label="Take photo"
-              title="Take Photo"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            
-            {/* Gallery Button */}
-            <button
-              type="button"
-              onClick={handleGalleryClick}
-              disabled={isLoading || !isHydrated || selectedImage !== null}
-              className="px-3 py-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              aria-label="Select from gallery"
-              title="Select from Gallery"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </button>
+            {/* Mobile: Paperclip with Dropdown Menu */}
+            {isMobile ? (
+              <div className="relative" ref={attachMenuRef}>
+                <button
+                  type="button"
+                  onClick={handlePaperclipClick}
+                  disabled={isLoading || !isHydrated || selectedImage !== null}
+                  className="px-3 py-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  aria-label="Attach file"
+                  title="Attach File"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                </button>
+                
+                {/* Dropdown Menu */}
+                {showAttachMenu && (
+                  <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-10">
+                    <button
+                      type="button"
+                      onClick={handleCameraClick}
+                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors duration-200 text-left"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-700">Take Photo</span>
+                    </button>
+                    <div className="border-t border-gray-100"></div>
+                    <button
+                      type="button"
+                      onClick={handleGalleryClick}
+                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors duration-200 text-left"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-700">Select from Gallery</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Desktop: Direct File Selector */
+              <button
+                type="button"
+                onClick={handleDesktopFileClick}
+                disabled={isLoading || !isHydrated || selectedImage !== null}
+                className="px-3 py-2 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                aria-label="Attach file"
+                title="Attach File"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+              </button>
+            )}
             
             <div className="flex-1 relative">
               <textarea
